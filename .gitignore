@@ -6,3 +6,5 @@ __pycache__/
 local_pg/
 .pytest_cache/
 .mypy_cache/
+deploy_bundle.tar.gz
+

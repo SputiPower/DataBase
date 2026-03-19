@@ -2,10 +2,12 @@ import base64
 import re
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
 from app.core.exceptions import ValidationError
+from app.db.enums import PassStatus
 
 
 PHONE_REGEX = re.compile(r"^[0-9+\-\s()]{5,32}$")
@@ -18,6 +20,13 @@ def empty_str_to_none(value: str | None) -> str | None:
         return None
     normalized = value.strip()
     return normalized or None
+
+
+def encode_image_data(image_bytes: bytes, content_type: str | None = None) -> str:
+    encoded = base64.b64encode(image_bytes).decode("ascii")
+    if content_type:
+        return f"data:{content_type};base64,{encoded}"
+    return encoded
 
 
 class UserSchema(BaseModel):
@@ -151,6 +160,46 @@ class SubmitDataResponse(BaseModel):
     status: int
     message: str | None
     id: int | None
+
+
+class ErrorMessageResponse(BaseModel):
+    message: str
+
+
+class MountainPassUpdateResponse(BaseModel):
+    state: Literal[0, 1]
+    message: str | None
+
+
+class MountainPassImageResponse(BaseModel):
+    data: str
+    title: str
+
+
+class MountainPassDetailResponse(BaseModel):
+    beauty_title: str | None
+    title: str
+    other_titles: str | None
+    connect: str | None
+    add_time: datetime
+    user: UserSchema
+    coords: CoordinatesSchema
+    level: LevelSchema
+    images: list[MountainPassImageResponse]
+    status: PassStatus
+    created_at: datetime
+    updated_at: datetime | None
+
+
+class MountainPassSummaryResponse(BaseModel):
+    id: int
+    title: str
+    beauty_title: str | None
+    other_titles: str | None
+    status: PassStatus
+    add_time: datetime
+    created_at: datetime
+    updated_at: datetime | None
 
 
 def build_validation_message(errors: list[dict]) -> str:
