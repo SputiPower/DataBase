@@ -17,10 +17,10 @@ CREATE TABLE IF NOT EXISTS users (
     middle_name     VARCHAR(100),
     phone           VARCHAR(32) NOT NULL,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT ck_users_email_not_blank CHECK (char_length(btrim(email)) > 3),
-    CONSTRAINT ck_users_first_name_not_blank CHECK (char_length(btrim(first_name)) > 0),
-    CONSTRAINT ck_users_last_name_not_blank CHECK (char_length(btrim(last_name)) > 0),
-    CONSTRAINT ck_users_phone_not_blank CHECK (char_length(btrim(phone)) > 0)
+    CONSTRAINT ck_users_email_not_blank CHECK (length(trim(email)) > 3),
+    CONSTRAINT ck_users_first_name_not_blank CHECK (length(trim(first_name)) > 0),
+    CONSTRAINT ck_users_last_name_not_blank CHECK (length(trim(last_name)) > 0),
+    CONSTRAINT ck_users_phone_not_blank CHECK (length(trim(phone)) > 0)
 );
 
 CREATE TABLE IF NOT EXISTS mountain_passes (
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS mountain_passes (
     user_id         BIGINT NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT ck_mountain_passes_title_not_blank CHECK (char_length(btrim(title)) > 0)
+    CONSTRAINT ck_mountain_passes_title_not_blank CHECK (length(trim(title)) > 0)
 );
 
 CREATE TABLE IF NOT EXISTS pass_coordinates (

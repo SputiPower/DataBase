@@ -22,6 +22,8 @@ from app.db.base import Base
 from app.db.enums import PassStatus
 
 
+bigint_type = BigInteger().with_variant(Integer, "sqlite")
+
 pass_status_enum = Enum(
     PassStatus,
     name="mountain_pass_status",
@@ -32,13 +34,13 @@ pass_status_enum = Enum(
 class User(Base):
     __tablename__ = "users"
     __table_args__ = (
-        CheckConstraint("char_length(btrim(email)) > 3", name="email_not_blank"),
-        CheckConstraint("char_length(btrim(first_name)) > 0", name="first_name_not_blank"),
-        CheckConstraint("char_length(btrim(last_name)) > 0", name="last_name_not_blank"),
-        CheckConstraint("char_length(btrim(phone)) > 0", name="phone_not_blank"),
+        CheckConstraint("length(trim(email)) > 3", name="email_not_blank"),
+        CheckConstraint("length(trim(first_name)) > 0", name="first_name_not_blank"),
+        CheckConstraint("length(trim(last_name)) > 0", name="last_name_not_blank"),
+        CheckConstraint("length(trim(phone)) > 0", name="phone_not_blank"),
     )
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(bigint_type, primary_key=True)
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
     last_name: Mapped[str] = mapped_column(String(100), nullable=False)
     first_name: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -52,13 +54,13 @@ class User(Base):
 class MountainPass(Base):
     __tablename__ = "mountain_passes"
     __table_args__ = (
-        CheckConstraint("char_length(btrim(title)) > 0", name="title_not_blank"),
+        CheckConstraint("length(trim(title)) > 0", name="title_not_blank"),
         Index("ix_mountain_passes_status", "status"),
         Index("ix_mountain_passes_add_time", "add_time"),
         Index("ix_mountain_passes_user_id", "user_id"),
     )
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(bigint_type, primary_key=True)
     beauty_title: Mapped[str | None] = mapped_column(String(255), nullable=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     other_titles: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -106,7 +108,7 @@ class PassCoordinate(Base):
         CheckConstraint("height >= 0", name="chk_pass_coordinates_height"),
     )
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(bigint_type, primary_key=True)
     mountain_pass_id: Mapped[int] = mapped_column(
         ForeignKey("mountain_passes.id", ondelete="CASCADE"),
         nullable=False,
@@ -124,7 +126,7 @@ class PassLevel(Base):
         UniqueConstraint("mountain_pass_id", name="uq_pass_levels_mountain_pass_id"),
     )
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(bigint_type, primary_key=True)
     mountain_pass_id: Mapped[int] = mapped_column(
         ForeignKey("mountain_passes.id", ondelete="CASCADE"),
         nullable=False,
@@ -145,7 +147,7 @@ class PassImage(Base):
         UniqueConstraint("mountain_pass_id", "position", name="uq_pass_images_mountain_pass_position"),
     )
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(bigint_type, primary_key=True)
     mountain_pass_id: Mapped[int] = mapped_column(
         ForeignKey("mountain_passes.id", ondelete="CASCADE"),
         nullable=False,
@@ -153,7 +155,7 @@ class PassImage(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     image_data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
     content_type: Mapped[str | None] = mapped_column(String(128), nullable=True)
-    position: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, server_default="0")
+    position: Mapped[int] = mapped_column(bigint_type, nullable=False, default=0, server_default="0")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     mountain_pass: Mapped["MountainPass"] = relationship(back_populates="images")
