@@ -43,7 +43,7 @@ UserEmailQuery = Annotated[EmailStr, Query(alias="user__email", description="Ema
 )
 def submit_data(payload: PassSubmissionSchema, service_dep: MountainPassServiceDep) -> SubmitDataResponse:
     record_id = service_dep.submit(payload)
-    return SubmitDataResponse(status=200, message=None, id=record_id)
+    return SubmitDataResponse(status=200, message="Отправлено успешно", id=record_id)
 
 
 @router.get(
