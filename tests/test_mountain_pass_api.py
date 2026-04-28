@@ -43,6 +43,7 @@ def create_mountain_pass(client) -> int:
     assert response.status_code == 200
     body = response.json()
     assert body["status"] == 200
+    assert body["message"] == "Отправлено успешно"
     assert body["id"] is not None
     return body["id"]
 
